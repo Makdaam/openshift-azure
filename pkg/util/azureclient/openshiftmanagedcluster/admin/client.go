@@ -762,3 +762,209 @@ type OpenShiftManagedClustersControlPlanePods struct {
 
 	Items []byte `json:"-"`
 }
+
+// OpenShiftManagedClustersChangeLogLevelFuture an abstraction for monitoring and retrieving the results of a
+// plugin loglevel change operation.
+type OpenShiftManagedClustersChangeLogLevelFuture struct {
+	azure.Future
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future *OpenShiftManagedClustersChangeLogLevelFuture) Result(client OpenShiftManagedClustersClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerservice.OpenShiftManagedClustersDeleteFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		err = azure.NewAsyncOpIncompleteError("containerservice.OpenShiftManagedClustersDeleteFuture")
+		return
+	}
+	ar.Response = future.Response()
+	return
+}
+
+// ChangeLogLevelAndWait changes the plugin's loglevel and waits
+// for the request to complete before returning.
+func (client OpenShiftManagedClustersClient) ChangeLogLevelAndWait(ctx context.Context, resourceGroupName, resourceName, loglevel string) (result autorest.Response, err error) {
+	var future OpenShiftManagedClustersChangeLogLevelFuture
+	future, err = client.ChangeLogLevel(ctx, resourceGroupName, resourceName, loglevel)
+	if err != nil {
+		return
+	}
+	if err = future.WaitForCompletionRef(ctx, client.Client); err != nil {
+		return
+	}
+	return future.Result(client)
+}
+
+// ChangeLogLevel changes loglevel of the plugin to the desired one
+// Parameters:
+// resourceGroupName - the name of the resource group.
+// resourceName - the name of the openshift managed cluster resource.
+// loglevel - the loglevel string for example: "error","warning","info", "debug"
+func (client OpenShiftManagedClustersClient) ChangeLogLevel(ctx context.Context, resourceGroupName, resourceName string, loglevel string) (result OpenShiftManagedClustersChangeLogLevelFuture, err error) {
+	req, err := client.ChangeLogLevelPreparer(ctx, resourceGroupName, resourceName, loglevel)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerservice.OpenShiftManagedClustersClient", "ChangeLogLevel", nil, "Failure preparing request")
+		return
+	}
+
+	result, err = client.ChangeLogLevelSender(req)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerservice.OpenShiftManagedClustersClient", "ChangeLogLevel", result.Response(), "Failure sending request")
+		return
+	}
+
+	return
+}
+
+// ChangeLogLevelPreparer prepares the loglevel change request.
+func (client OpenShiftManagedClustersClient) ChangeLogLevelPreparer(ctx context.Context, resourceGroupName string, resourceName string, loglevel string) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"resourceName":      autorest.Encode("path", resourceName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
+	}
+
+	queryParameters := map[string]interface{}{
+		"api-version": api.APIVersion,
+	}
+
+	jsonParameters := map[string]interface{}{
+		"level": loglevel,
+	}
+	preparer := autorest.CreatePreparer(
+		autorest.AsContentType("application/json; charset=utf-8"),
+		autorest.AsPut(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/openShiftManagedClusters/{resourceName}/loglevel", pathParameters),
+		autorest.WithQueryParameters(queryParameters),
+		autorest.WithJSON(jsonParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+}
+
+// ChangeLogLevelSender sends the loglevel change request. The method will close the
+// http.Response Body if it receives an error.
+func (client OpenShiftManagedClustersClient) ChangeLogLevelSender(req *http.Request) (future OpenShiftManagedClustersChangeLogLevelFuture, err error) {
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+	if err != nil {
+		return
+	}
+	err = autorest.Respond(resp, azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
+	return
+}
+
+// ChangeLogLevelResponder handles the response to the loglevel change request. The method
+// always closes the http.Response Body.
+func (client OpenShiftManagedClustersClient) ChangeLogLevelResponder(resp *http.Response) (result autorest.Response, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted),
+		autorest.ByClosing())
+	result.Response = resp
+	return
+}
+
+type OpenShiftManagedClustersGetLogLevelFuture struct {
+	azure.Future
+}
+
+// OpenShiftManagedClustersGetLogLevelFuture an abstraction for monitoring and retrieving the results of a
+// get loglevel operation.
+func (future *OpenShiftManagedClustersGetLogLevelFuture) Result(client OpenShiftManagedClustersClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerservice.OpenShiftManagedClustersGetLogLevelFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		err = azure.NewAsyncOpIncompleteError("containerservice.OpenShiftManagedClustersGetLogLevelFuture")
+		return
+	}
+	ar.Response = future.Response()
+	return
+}
+
+// OpenShiftManagedClustersLogLevel contains the loglevel
+type OpenShiftManagedClustersLogLevel struct {
+	autorest.Response `json:"-"`
+
+	Items []byte `json:"-"`
+}
+
+// GetLogLevel gets the details of the managed openshift cluster with a specified resource group and name.
+// Parameters:
+// resourceGroupName - the name of the resource group.
+// resourceName - the name of the openshift managed cluster resource.
+func (client OpenShiftManagedClustersClient) GetLogLevel(ctx context.Context, resourceGroupName string, resourceName string) (result OpenShiftManagedClustersLogLevel, err error) {
+	req, err := client.GetLogLevelPreparer(ctx, resourceGroupName, resourceName)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerservice.OpenShiftManagedClustersClient", "GetLogLevel", nil, "Failure preparing request")
+		return
+	}
+
+	resp, err := client.GetLogLevelSender(req)
+	if err != nil {
+		result.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerservice.OpenShiftManagedClustersClient", "GetLogLevel", resp, "Failure sending request")
+		return
+	}
+
+	result, err = client.GetLogLevelResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerservice.OpenShiftManagedClustersClient", "GetLogLevel", resp, "Failure responding to request")
+	}
+
+	return
+}
+
+// GetLogLevelPreparer prepares the GetLogLevel request.
+func (client OpenShiftManagedClustersClient) GetLogLevelPreparer(ctx context.Context, resourceGroupName string, resourceName string) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"resourceName":      autorest.Encode("path", resourceName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
+	}
+
+	queryParameters := map[string]interface{}{
+		"api-version": api.APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsGet(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/openShiftManagedClusters/{resourceName}/loglevel", pathParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+}
+
+// GetLogLevelSender sends the GetLogLevel request. The method will close the
+// http.Response Body if it receives an error.
+func (client OpenShiftManagedClustersClient) GetLogLevelSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+}
+
+// GetLogLevelResponder handles the response to the GetLogLevel request. The method always
+// closes the http.Response Body.
+func (client OpenShiftManagedClustersClient) GetLogLevelResponder(resp *http.Response) (result OpenShiftManagedClustersLogLevel, err error) {
+	defer resp.Body.Close()
+	status, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	result.Response = autorest.Response{Response: resp}
+	result.Items = status
+	return
+}

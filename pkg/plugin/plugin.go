@@ -218,6 +218,19 @@ func (p *plugin) RotateClusterSecrets(ctx context.Context, cs *api.OpenShiftMana
 	return nil
 }
 
+func (p *plugin) ChangeLogLevel(ctx context.Context, cs *api.OpenShiftManagedCluster, level logrus.Level) {
+	p.log.WithFields(logrus.Fields{
+		"before": logrus.GetLevel().String(),
+		"after":  level.String(),
+	}).Info("Changed log level")
+	logrus.SetLevel(level)
+}
+
+func (p *plugin) GetLogLevel(ctx context.Context, cs *api.OpenShiftManagedCluster) ([]byte, error) {
+	p.log.Info("Fetched log level")
+	return json.Marshal(logrus.GetLevel().String())
+}
+
 func (p *plugin) initialize(ctx context.Context, oc *api.OpenShiftManagedCluster) error {
 	var err error
 	if p.kubeclient == nil {

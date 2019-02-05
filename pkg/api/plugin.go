@@ -4,6 +4,8 @@ package api
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	plugin "github.com/openshift/openshift-azure/pkg/api/plugin/api"
 )
 
@@ -121,4 +123,10 @@ type GenevaActions interface {
 
 	// GetControlPlanePods fetches a consolidated list of the control plane pods in the cluster
 	GetControlPlanePods(ctx context.Context, oc *OpenShiftManagedCluster) ([]byte, error)
+
+	// ChangeLogLevel changes the plugin log level to the specified value
+	ChangeLogLevel(ctx context.Context, cs *OpenShiftManagedCluster, level logrus.Level)
+
+	// GetLogLevel gets the current log level of the plugin
+	GetLogLevel(ctx context.Context, cs *OpenShiftManagedCluster) ([]byte, error)
 }
